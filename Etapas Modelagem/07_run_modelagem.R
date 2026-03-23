@@ -11,6 +11,7 @@ if (nrow(especies_pendentes) == 0) {
   cat("Background adaptativo: proporção 1:1\n")
   cat("Espécies pendentes:", nrow(especies_pendentes), "\n")
   cat(paste(rep("🔥", 40), collapse = ""), "\n\n")
+  n_cores_inicial <- n_cores
   # Snapshot de parâmetros usados nesta execução
   parametros_execucao <- data.frame(
     parametro = c(
@@ -119,14 +120,10 @@ if (nrow(especies_pendentes) == 0) {
       if (!is.null(resultado) && resultado$status != "sucesso" && is_memory_error(resultado$erro)) {
         safe_mode_auto <- TRUE
         if (n_cores_atual > 3) {
-          cat("
-⚠️ Safe mode automático ativado (erro de memória). Reduzindo n_cores para 3 nas próximas espécies.
-")
+          cat("\n⚠️ Safe mode automático ativado (erro de memória). Reduzindo n_cores para 3 nas próximas espécies.\n")
           n_cores_atual <- 3
         } else if (n_cores_atual == 3) {
-          cat("
-⚠️ Novo erro de memória com n_cores=3. Reduzindo n_cores para 1 nas próximas espécies.
-")
+          cat("\n⚠️ Novo erro de memória com n_cores=3. Reduzindo n_cores para 1 nas próximas espécies.\n")
           n_cores_atual <- 1
         }
       }
