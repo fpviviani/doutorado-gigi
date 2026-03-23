@@ -140,3 +140,22 @@ Se você quiser forçar uma execução do zero, apague o checkpoint:
 
 - `Checkpoints/Modelagem/progresso.rds`
 
+
+## Modo seguro (menos uso de memória)
+
+Se o script estiver travando/fechando por falta de memória, você pode ativar o **modo seguro**, que reduz o paralelismo (limita `n_cores` a no máximo 2).
+
+No Windows (PowerShell), antes de rodar:
+
+```powershell
+$env:MODELAGEM_SAFE_MODE = "1"
+Rscript .\main_modelagem.R
+```
+
+No CMD:
+
+```bat
+set MODELAGEM_SAFE_MODE=1
+Rscript main_modelagem.R
+```
+

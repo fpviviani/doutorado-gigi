@@ -6,6 +6,13 @@ lote_tamanho <- 3
 pausa_minutos <- 15
 max_tentativas <- 3
 n_cores <- 6
+
+# MODO SEGURO (reduz paralelismo para evitar estouro de memória/travamentos)
+# Ative com a variável de ambiente: MODELAGEM_SAFE_MODE=1
+safe_mode <- tolower(Sys.getenv("MODELAGEM_SAFE_MODE", "0")) %in% c("1", "true", "yes")
+if (safe_mode) {
+  n_cores <- max(1, min(2, n_cores))
+}
 limiar_vif <- 10
 n_replicacoes <- 10
 test_percent <- 30
