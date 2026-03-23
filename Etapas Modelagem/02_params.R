@@ -7,15 +7,15 @@ pausa_minutos <- 15
 max_tentativas <- 3
 n_cores <- 6
 
-# MODO SEGURO (reduz paralelismo para evitar estouro de memória/travamentos)
+# MODO SEGURO (controle do safe mode automático)
 # Por padrão fica DESATIVADO. Você pode ativar definindo safe_mode <- TRUE aqui
 # ou forçar via variável de ambiente: MODELAGEM_SAFE_MODE=1
+#
+# IMPORTANTE: quando ativo, permite que o script reduza n_cores automaticamente
+# (3 e depois 1) após erros de memória. Aqui NÃO alteramos n_cores.
 safe_mode <- FALSE
 safe_mode_env <- tolower(Sys.getenv("MODELAGEM_SAFE_MODE", ""))
 if (safe_mode_env %in% c("1", "true", "yes")) safe_mode <- TRUE
-if (safe_mode) {
-  n_cores <- max(1, min(3, n_cores))
-}
 limiar_vif <- 10
 n_replicacoes <- 10
 test_percent <- 30
