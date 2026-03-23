@@ -171,6 +171,7 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     
     eval_completo <- as.data.frame(eval_stats)
     eval_completo$especie <- especie
+    eval_completo$n_background_usado <- n_background
     write.csv(eval_completo, 
               file.path(dir_avaliacoes, paste0(especie, "_avaliacao.csv")), 
               row.names = FALSE)
