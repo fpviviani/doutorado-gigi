@@ -2,15 +2,14 @@
 
 Este diretório contém o script de modelagem R **compartimentado em etapas** para facilitar manutenção.
 
-## Como rodar
-
 ## Requisitos (Windows)
 
 - **R 4.3.3** (obrigatório: o `main_modelagem.R` valida a versão antes de rodar)
-- Pacote **renv** (o script instala no user library se não existir)
+- Pacote **renv** (o script tenta instalar no *user library* se não existir)
 
-Ao executar `main_modelagem.R`, o projeto vai tentar rodar `renv::restore()` automaticamente se existir `renv.lock`.
+Ao executar `main_modelagem.R`, o projeto tenta rodar `renv::restore()` automaticamente se existir `renv.lock`.
 
+## Como rodar
 
 Execute o arquivo principal:
 
@@ -23,8 +22,10 @@ Ele chama, em sequência, cada arquivo dentro de `Etapas Modelagem/` via `source
 ### `main_modelagem.R`
 Orquestrador do pipeline.
 
-- Não contém a lógica “pesada” do modelo.
-- Apenas executa (`source(...)`) as etapas na ordem correta.
+- Valida versão do R (4.3.3)
+- Configura CRAN
+- Garante `renv` e roda `renv::restore()` (se existir `renv.lock`)
+- Executa (`source(...)`) as etapas na ordem correta
 
 ### Pasta `Etapas Modelagem/`
 Contém os módulos separados por etapa.
@@ -41,6 +42,7 @@ Define e prepara os diretórios de trabalho.
 
 - Define caminhos base e subpastas (ocorrências, buffers, modelagem, variáveis, checkpoints, temporários, relatórios)
 - Cria as pastas necessárias caso não existam
+- **Checkpoint da modelagem** fica em `Checkpoints/Modelagem/`
 
 #### `Etapas Modelagem/02_params.R`
 Parâmetros gerais da modelagem.
@@ -51,6 +53,7 @@ Parâmetros gerais da modelagem.
 - Limites de background (min/max)
 - Métodos de modelagem (`maxent`, `rf`, `gam`)
 - Espécie de partida
+- Flag `safe_mode` (habilita/desabilita redução automática de cores após erros de memória)
 
 #### `Etapas Modelagem/03_background_adaptativo.R`
 Função de background adaptativo.
@@ -62,7 +65,7 @@ Função de background adaptativo.
 Limpeza inicial antes de começar o processamento.
 
 - Imprime cabeçalho “INICIANDO MODELAGEM”
-- Limpa arquivos temporários (Windows Temp e `dir_temp` do projeto)
+- Limpa **apenas** a pasta temporária do projeto (`dir_temp` / `temp_raster`)
 - Chama `gc()`
 
 #### `Etapas Modelagem/05_load_data.R`
@@ -84,7 +87,7 @@ Função principal de processamento por espécie.
   - recorta e mascara variáveis climáticas no buffer
   - extrai valores nas ocorrências
   - faz seleção por VIF (`vifstep` / `exclude`)
-  - escreve raster temporário e cria `raster::stack`
+  - escreve raster temporário e cria `raster::stack` (ponte para `sdm`)
   - monta `sdmData` com background
   - calibra modelos com `sdm()` (com paralelismo)
   - avalia (AUC/TSS)
@@ -92,11 +95,12 @@ Função principal de processamento por espécie.
   - salva raster final `*_ensemble.tif`
   - salva avaliação individual `*_avaliacao.csv`
   - retorna um `data.frame` com resumo/estatísticas da espécie
+- Cria **log por espécie** em `relatorios/logs_especies/`
+- Inclui `n_background_usado` e informações de métodos (solicitados/rodados/faltando) no CSV de avaliação individual
 
 #### `Etapas Modelagem/07_run_modelagem.R`
 Loop principal (lotes + checkpoints + relatórios).
 
-- Decide se há espécies pendentes
 - Processa em lotes (`lote_tamanho`) com barra de progresso
 - Para cada espécie:
   - tenta até `max_tentativas`
@@ -105,6 +109,8 @@ Loop principal (lotes + checkpoints + relatórios).
 - Ao final:
   - salva `resultados_finais.csv`
   - imprime resumo (sucessos, falhas, médias de AUC/TSS/background/ocorrências)
+- Salva também `relatorios/parametros_execucao.csv` com snapshot de parâmetros
+- Se `safe_mode == TRUE`, ativa **redução automática** de `n_cores` após falhas por memória (reduz pela metade até 1)
 
 ## Saídas geradas (resumo)
 
@@ -113,6 +119,9 @@ Dependendo dos dados, o pipeline tende a produzir:
 - `Modelagem_15km/<especie>_ensemble.tif` (mapa final por espécie)
 - `relatorios/lote_<n>.csv` (resumo do lote)
 - `relatorios/resultados_finais.csv` (resumo consolidado)
+- `relatorios/parametros_execucao.csv` (snapshot de parâmetros usados)
+- `relatorios/erros_por_especie.csv` (último erro por espécie)
+- `relatorios/logs_especies/<especie>_YYYYmmdd_HHMMSS.log` (log por espécie)
 - `relatorios/avaliacoes_individuais/<especie>_avaliacao.csv` (avaliação por réplica/modelo)
 - `Checkpoints/Modelagem/progresso.rds` (checkpoint do progresso)
 
@@ -133,39 +142,16 @@ Durante a execução, se uma espécie falhar, o script atualiza o arquivo:
 
 - `relatorios/erros_por_especie.csv`
 
-Esse CSV mantém **o último erro registrado por espécie** (tentativa, mensagem e timestamp), para facilitar depuração sem precisar procurar no console.
+Esse CSV mantém **o último erro registrado por espécie** (tentativa, mensagem e timestamp).
 
 ### Recomeçar do zero
 Se você quiser forçar uma execução do zero, apague o checkpoint:
 
 - `Checkpoints/Modelagem/progresso.rds`
 
-
 ## Modo seguro (menos uso de memória)
 
 O controle do safe mode fica em `Etapas Modelagem/02_params.R` na variável `safe_mode`.
 
-- `safe_mode <- TRUE`: permite redução automática de `n_cores` após erros de memória (3 e depois 1).
+- `safe_mode <- TRUE`: permite redução automática de `n_cores` após erros de memória (reduz pela metade: 8→4→2→1; 6→3→1).
 - `safe_mode <- FALSE`: desabilita a redução automática (segue com `n_cores` normal).
-
-Se o script estiver travando/fechando por falta de memória, você pode ativar o **modo seguro**, que habilita o *safe mode automático* (redução de `n_cores` para as próximas espécies quando ocorrer erro de memória).
-
-No Windows (PowerShell), antes de rodar:
-
-```powershell
-$env:MODELAGEM_SAFE_MODE = "1"
-Rscript .\main_modelagem.R
-```
-
-No CMD:
-
-```bat
-set MODELAGEM_SAFE_MODE=1
-Rscript main_modelagem.R
-```
-
-
-### Safe mode automático
-
-Além do modo seguro manual, o pipeline também tenta ativar um **safe mode automático**: se uma espécie falhar com mensagens típicas de falta de memória, ele reduz o `n_cores` pela metade para a **próxima** espécie (ex.: 8→4→2→1; 6→3→1), até o mínimo de 1.
-
