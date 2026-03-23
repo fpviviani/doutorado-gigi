@@ -167,5 +167,5 @@ Rscript main_modelagem.R
 
 ### Safe mode automático
 
-Além do modo seguro manual, o pipeline também tenta ativar um **safe mode automático**: se uma espécie falhar com mensagens típicas de falta de memória, ele reduz o `n_cores` para a **próxima** espécie (primeiro para 3; se repetir com 3, reduz para 1).
+Além do modo seguro manual, o pipeline também tenta ativar um **safe mode automático**: se uma espécie falhar com mensagens típicas de falta de memória, ele reduz o `n_cores` pela metade para a **próxima** espécie (ex.: 8→4→2→1; 6→3→1), até o mínimo de 1.
 

@@ -120,11 +120,18 @@ if (nrow(especies_pendentes) == 0) {
       
       # Safe mode automático: se falhou por memória, reduzir n_cores para a PRÓXIMA espécie
       if (safe_mode && !is.null(resultado) && resultado$status != "sucesso" && is_memory_error(resultado$erro)) {
-        if (n_cores_atual > 3) {
-          cat("\n⚠️ Safe mode automático ativado (erro de memória). Reduzindo n_cores para 3 nas próximas espécies.\n")
-          n_cores_atual <- 3
-        } else if (n_cores_atual == 3) {
-          cat("\n⚠️ Novo erro de memória com n_cores=3. Reduzindo n_cores para 1 nas próximas espécies.\n")
+        novo_n_cores <- floor(n_cores_atual / 2)
+        if (novo_n_cores < 1) novo_n_cores <- 1
+
+        if (novo_n_cores < n_cores_atual) {
+          cat("
+⚠️ Safe mode automático ativado (erro de memória). Reduzindo n_cores para ", novo_n_cores, " nas próximas espécies.
+", sep = "")
+          n_cores_atual <- novo_n_cores
+        } else if (n_cores_atual > 1) {
+          cat("
+⚠️ Novo erro de memória. Reduzindo n_cores para 1 nas próximas espécies.
+")
           n_cores_atual <- 1
         }
       }
