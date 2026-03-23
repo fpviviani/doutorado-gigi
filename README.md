@@ -17,6 +17,30 @@ Execute o arquivo principal:
 
 Ele chama, em sequência, cada arquivo dentro de `Etapas Modelagem/` via `source()`.
 
+
+## Estrutura de pastas (Input/Output)
+
+Este projeto separa dados e resultados assim:
+
+- `Input/` → **dados de entrada** (não versionados)
+- `Output/` → **saídas geradas** (não versionadas)
+
+Ambas as pastas possuem `.gitkeep` e um `.gitignore` que ignora todo o conteúdo.
+
+### Onde colocar os dados (Input)
+O script espera encontrar:
+
+- `Input/Ocorrencias_15km/` (CSV de ocorrências por espécie)
+- `Input/Buffers_15km/` (shapefiles de buffer por espécie)
+- `Input/Variaveis/climate/wc2.1_country/BRA_wc2.1_30s_bio.tif` (raster climático)
+
+### Onde saem os resultados (Output)
+As saídas são geradas em:
+
+- `Output/Modelagem_15km/` (rasters `*_ensemble.tif` + relatórios)
+- `Output/Checkpoints/Modelagem/` (checkpoint `progresso.rds`)
+- `Output/temp_raster/` (temporários)
+
 ## Arquivos e o que cada um faz
 
 ### `main_modelagem.R`
@@ -123,7 +147,7 @@ Dependendo dos dados, o pipeline tende a produzir:
 - `relatorios/erros_por_especie.csv` (último erro por espécie)
 - `relatorios/logs_especies/<especie>_YYYYmmdd_HHMMSS.log` (log por espécie)
 - `relatorios/avaliacoes_individuais/<especie>_avaliacao.csv` (avaliação por réplica/modelo)
-- `Checkpoints/Modelagem/progresso.rds` (checkpoint do progresso)
+- `Output/Output/Checkpoints/Modelagem/progresso.rds` (checkpoint do progresso)
 
 ---
 
@@ -131,7 +155,7 @@ Dependendo dos dados, o pipeline tende a produzir:
 
 O script salva um checkpoint automaticamente em:
 
-- `Checkpoints/Modelagem/progresso.rds`
+- `Output/Output/Checkpoints/Modelagem/progresso.rds`
 
 Se a execução for interrompida (queda de energia, travamento, etc.), basta rodar o `main_modelagem.R` novamente.
 
@@ -147,7 +171,7 @@ Esse CSV mantém **o último erro registrado por espécie** (tentativa, mensagem
 ### Recomeçar do zero
 Se você quiser forçar uma execução do zero, apague o checkpoint:
 
-- `Checkpoints/Modelagem/progresso.rds`
+- `Output/Output/Checkpoints/Modelagem/progresso.rds`
 
 ## Modo seguro (menos uso de memória)
 

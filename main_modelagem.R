@@ -2,6 +2,10 @@
 # BOOTSTRAP (Windows / renv / versão do R)
 # =============================================================================
 
+# Garantir que o working directory seja a pasta do projeto (para paths relativos)
+this_script <- tryCatch(normalizePath(sys.frame(1)$ofile, winslash = "/"), error = function(e) NA)
+if (!is.na(this_script)) setwd(dirname(this_script))
+
 # Exigir versão do R (conforme renv.lock)
 versao_r_necessaria <- "4.3.3"
 versao_r_atual <- paste(R.version$major, R.version$minor, sep = ".")
