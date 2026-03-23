@@ -10,12 +10,16 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
   dir_logs_especies <- file.path(dir_relatorios, "logs_especies")
   if (!dir.exists(dir_logs_especies)) dir.create(dir_logs_especies, recursive = TRUE)
   log_path <- file.path(dir_logs_especies, paste0(especie, "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".log"))
-  sink(log_path, append = TRUE, split = TRUE)
-  sink(log_path, append = TRUE, type = "message")
+
+  con <- file(log_path, open = "at", encoding = "UTF-8")
+  sink(con, append = TRUE, split = TRUE)
+  sink(con, append = TRUE, type = "message")
   on.exit({
     try(sink(type = "message"), silent = TRUE)
     try(sink(), silent = TRUE)
+    try(close(con), silent = TRUE)
   }, add = TRUE)
+
   cat("\n===== LOG INICIADO: ", as.character(Sys.time()), " | ", especie, " =====\n")
 
   cat("\n", paste(rep("=", 70), collapse = ""), "\n")
