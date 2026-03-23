@@ -26,7 +26,11 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
   tempo_inicio <- Sys.time()
   
   tryCatch({
-    
+
+    # Validações rápidas
+    if (!inherits(bioclimaticas, "SpatRaster")) stop("bioclimaticas inválido (não é SpatRaster)")
+    if (nlyr(bioclimaticas) < 1) stop("bioclimaticas inválido (sem camadas)")
+
     # 1. Carregar ocorrências
     cat("\n1️⃣ Carregando ocorrências...\n")
     sp <- read.csv(especie_info$arquivo)
@@ -61,6 +65,7 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     vars_buffer <- crop(bioclimaticas, buffer)
     vars_buffer <- mask(vars_buffer, buffer)
     cat("   📊", nlyr(vars_buffer), "camadas\n")
+    if (nlyr(vars_buffer) < 1) stop("Recorte de variáveis resultou em 0 camadas")
     
     # 5. Extrair valores
     sp_vect <- vect(sp[, c("longitude", "latitude")], 
@@ -70,6 +75,8 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     sp_extract <- terra::extract(vars_buffer, sp_vect)
     sp_extract <- sp_extract[, -1, drop = FALSE]
     sp_extract <- sp_extract[complete.cases(sp_extract), ]
+    if (nrow(sp_extract) < 1) stop("Extração das variáveis retornou 0 linhas (ocorrências fora do raster/buffer?)")
+    if (ncol(sp_extract) < 1) stop("Extração das variáveis retornou 0 colunas")
     
     # 6. VIF
     cat("\n4️⃣ Analisando VIF...\n")
@@ -91,6 +98,7 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     cat("\n5️⃣ Convertendo para formato raster...\n")
     raster_temp <- file.path(dir_temp, paste0(especie, "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".tif"))
     writeRaster(vars_selecionadas, raster_temp, overwrite = TRUE)
+    if (!file.exists(raster_temp)) stop("Falha ao criar raster temporário")
     vars_stack <- raster::stack(raster_temp)
     
     # 8. Preparar dados
