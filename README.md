@@ -106,7 +106,7 @@ Dependendo dos dados, o pipeline tende a produzir:
 - `relatorios/lote_<n>.csv` (resumo do lote)
 - `relatorios/resultados_finais.csv` (resumo consolidado)
 - `relatorios/avaliacoes_individuais/<especie>_avaliacao.csv` (avaliação por réplica/modelo)
-- `Checkpoints/progresso.rds` (checkpoint do progresso)
+- `Checkpoints/Modelagem/progresso.rds` (checkpoint do progresso)
 
 ---
 
@@ -114,7 +114,7 @@ Dependendo dos dados, o pipeline tende a produzir:
 
 O script salva um checkpoint automaticamente em:
 
-- `Checkpoints/progresso.rds`
+- `Checkpoints/Modelagem/progresso.rds`
 
 Se a execução for interrompida (queda de energia, travamento, etc.), basta rodar o `main_modelagem.R` novamente.
 
@@ -130,5 +130,5 @@ Esse CSV mantém **o último erro registrado por espécie** (tentativa, mensagem
 ### Recomeçar do zero
 Se você quiser forçar uma execução do zero, apague o checkpoint:
 
-- `Checkpoints/progresso.rds`
+- `Checkpoints/Modelagem/progresso.rds`
 
