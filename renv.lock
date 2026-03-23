@@ -182,6 +182,24 @@
       "Version": "5.3.4",
       "Source": "Repository",
       "Repository": "CRAN"
+    },
+    "Formula": {
+      "Package": "Formula",
+      "Version": "1.2-5",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "plotmo": {
+      "Package": "plotmo",
+      "Version": "3.7.0",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
+    "plotrix": {
+      "Package": "plotrix",
+      "Version": "3.8-14",
+      "Source": "Repository",
+      "Repository": "CRAN"
     }
   }
 }
