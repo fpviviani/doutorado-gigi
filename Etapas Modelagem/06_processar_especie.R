@@ -111,7 +111,7 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     
     # 7. Converter para stack
     cat("\n5️⃣ Convertendo para formato raster...\n")
-    raster_temp <- file.path(dir_temp, paste0(especie, "_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".tif"))
+    raster_temp <- file.path(dir_temp, paste0(especie, "_vars.tif"))
     writeRaster(vars_selecionadas, raster_temp, overwrite = TRUE)
     if (!file.exists(raster_temp)) stop("Falha ao criar raster temporário")
     vars_stack <- raster::stack(raster_temp)
