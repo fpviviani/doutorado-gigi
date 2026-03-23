@@ -176,6 +176,12 @@
       "Version": "0.3.4.0.2",
       "Source": "Repository",
       "Repository": "CRAN"
+    },
+    "earth": {
+      "Package": "earth",
+      "Version": "5.3.4",
+      "Source": "Repository",
+      "Repository": "CRAN"
     }
   }
 }
