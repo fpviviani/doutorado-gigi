@@ -109,5 +109,3 @@ Dependendo dos dados, o pipeline tende a produzir:
 - `Checkpoints/progresso.rds` (checkpoint do progresso)
 
 ---
-
-Se quiser, eu também posso criar um README curto “passo-a-passo” (pré-requisitos e como apontar os diretórios), mas sem alterar o código.

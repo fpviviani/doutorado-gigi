@@ -11,6 +11,22 @@ if (nrow(especies_pendentes) == 0) {
   cat("Background adaptativo: proporção 1:1\n")
   cat("Espécies pendentes:", nrow(especies_pendentes), "\n")
   cat(paste(rep("🔥", 40), collapse = ""), "\n\n")
+  # Snapshot de parâmetros usados nesta execução
+  parametros_execucao <- data.frame(
+    parametro = c(
+      'lote_tamanho','pausa_minutos','max_tentativas','n_cores','limiar_vif','n_replicacoes','test_percent',
+      'background_min','background_max','metodos_modelagem','especie_partida'
+    ),
+    valor = c(
+      lote_tamanho, pausa_minutos, max_tentativas, n_cores, limiar_vif, n_replicacoes, test_percent,
+      background_min, background_max, paste(metodos_modelagem, collapse = ','), especie_partida
+    ),
+    stringsAsFactors = FALSE
+  )
+  write.csv(parametros_execucao,
+            file.path(dir_relatorios, 'parametros_execucao.csv'),
+            row.names = FALSE)
+
   
   resultados_consolidados <- data.frame()
   pb <- progress_bar$new(format = "[:bar] :current/:total (:percent)", 
