@@ -143,6 +143,11 @@ Se você quiser forçar uma execução do zero, apague o checkpoint:
 
 ## Modo seguro (menos uso de memória)
 
+O controle do safe mode fica em `Etapas Modelagem/02_params.R` na variável `safe_mode`.
+
+- `safe_mode <- TRUE`: permite redução automática de `n_cores` após erros de memória (3 e depois 1).
+- `safe_mode <- FALSE`: desabilita a redução automática (segue com `n_cores` normal).
+
 Se o script estiver travando/fechando por falta de memória, você pode ativar o **modo seguro**, que habilita o *safe mode automático* (redução de `n_cores` para as próximas espécies quando ocorrer erro de memória).
 
 No Windows (PowerShell), antes de rodar:
