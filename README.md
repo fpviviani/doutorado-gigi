@@ -4,6 +4,14 @@ Este diretório contém o script de modelagem R **compartimentado em etapas** pa
 
 ## Como rodar
 
+## Requisitos (Windows)
+
+- **R 4.3.3** (obrigatório: o `main_modelagem.R` valida a versão antes de rodar)
+- Pacote **renv** (o script instala no user library se não existir)
+
+Ao executar `main_modelagem.R`, o projeto vai tentar rodar `renv::restore()` automaticamente se existir `renv.lock`.
+
+
 Execute o arquivo principal:
 
 - `main_modelagem.R`
