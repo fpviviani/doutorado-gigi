@@ -182,9 +182,7 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     cat("   📈 TSS:", resultado$tss_media, "\n")
     
     # 11. Ensemble
-    cat("
-9️⃣ Gerando mapa ensemble (em chunks) ...
-")
+    cat("\n9️⃣ Gerando mapa ensemble (em chunks) ...\n")
 
     arquivo_mapa <- file.path(dir_modelagem, paste0(especie, "_ensemble.tif"))
     pred_tmp <- file.path(dir_temp, paste0(especie, "_pred_tmp.tif"))
@@ -203,10 +201,8 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
         wopt = list(gdal = c("COMPRESS=LZW"))
       )
     }, error = function(e) {
-      cat("   ⚠️ Weighted falhou: ", e$message, "
-", sep = "")
-      cat("   ⚠️ Usando método média (em chunks)
-")
+      cat("   ⚠️ Weighted falhou: ", e$message, "\n", sep = "")
+      cat("   ⚠️ Usando método média (em chunks)\n")
       ensemble(
         modelo,
         newdata = vars_stack,
