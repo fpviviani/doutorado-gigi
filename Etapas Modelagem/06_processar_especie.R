@@ -185,6 +185,8 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     cat("\n9️⃣ Gerando mapa ensemble (em chunks) ...\n")
 
     arquivo_mapa <- file.path(dir_modelagem, paste0(especie, "_ensemble.tif"))
+    pred_tmp <- file.path(dir_temp, paste0(especie, "_pred_tmp.tif"))
+
     # Observação: o sdm::ensemble() chama predict() internamente quando newdata é raster
     # e suporta escrever em arquivo (filename/pFilename), o que força processamento em blocos
     # via terra (evita segurar o raster inteiro em memória).
@@ -194,6 +196,7 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
         newdata = vars_stack,
         filename = arquivo_mapa,
         overwrite = TRUE,
+        pFilename = pred_tmp,
         setting = list(method = "weighted", stat = "TSS"),
         wopt = list(gdal = c("COMPRESS=LZW"))
       )
@@ -205,10 +208,14 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
         newdata = vars_stack,
         filename = arquivo_mapa,
         overwrite = TRUE,
+        pFilename = pred_tmp,
         setting = list(method = "mean"),
         wopt = list(gdal = c("COMPRESS=LZW"))
       )
     })
+
+    # Limpar arquivo temporário de predição (se foi gerado)
+    if (file.exists(pred_tmp)) file.remove(pred_tmp)
 
     # 12. Salvar avaliação
     cat("\n🔟 Salvando resultados...\n")
