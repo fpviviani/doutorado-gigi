@@ -26,11 +26,15 @@ metodos_modelagem <- c('maxent', 'rf', 'mars')
 # EXECUÇÃO: LOOP (padrão) OU ESPÉCIE ÚNICA
 # - "loop": roda todas as espécies encontradas na pasta (a partir de especie_partida)
 # - "single": roda somente a espécie indicada em especie_unica
-modo_execucao <- "loop"  # "loop" | "single"
+modo_execucao <- "loop"  # "loop" | "single" | "list"
 
 # Usado somente se modo_execucao == "single".
 # Exemplo: "Crypturellus_duidae" (deve bater com o nome do arquivo sem sufixos)
 especie_unica <- NULL
+
+# Usado somente se modo_execucao == "list".
+# Exemplo: c("Crypturellus_duidae", "Capito_auratus")
+especies_lista <- NULL
 
 # ESPÉCIE DE PARTIDA (somente no modo "loop")
 # Deixe vazio ("") para começar da primeira espécie encontrada na pasta de ocorrências

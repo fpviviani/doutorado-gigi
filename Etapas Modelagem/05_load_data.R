@@ -54,6 +54,40 @@ if (modo_execucao == "single") {
 
   cat("🎯 Modo de execução: SINGLE\n")
   cat("🎯 Espécie única:", especie_unica, "\n")
+
+} else if (modo_execucao == "list") {
+  if (is.null(especies_lista) || length(especies_lista) == 0) {
+    stop("modo_execucao='list' requer que 'especies_lista' seja definido em 02_params.R")
+  }
+
+  especies_lista <- as.character(especies_lista)
+  especies_lista <- trimws(especies_lista)
+  especies_lista <- especies_lista[especies_lista != ""]
+
+  if (length(especies_lista) == 0) {
+    stop("modo_execucao='list' requer que 'especies_lista' contenha ao menos 1 espécie válida")
+  }
+
+  faltantes <- setdiff(especies_lista, especies_df$especie)
+  if (length(faltantes) > 0) {
+    stop(paste0(
+      "Algumas espécies em especies_lista não foram encontradas na pasta de ocorrências: ",
+      paste(faltantes, collapse = ", "),
+      ". Confira os nomes dos arquivos (sem .csv / sem sufixos)."
+    ))
+  }
+
+  especies_pendentes <- especies_df[especies_df$especie %in% especies_lista, ]
+  # Preservar a ordem fornecida pelo usuário
+  especies_pendentes$ordem_tmp <- match(especies_pendentes$especie, especies_lista)
+  especies_pendentes <- especies_pendentes[order(especies_pendentes$ordem_tmp), ]
+  especies_pendentes$ordem_tmp <- NULL
+
+  especies_pendentes <- especies_pendentes[!especies_pendentes$especie %in% especies_processadas, ]
+
+  cat("🎯 Modo de execução: LIST\n")
+  cat("🎯 Espécies da lista:", paste(especies_lista, collapse = ", "), "\n")
+
 } else {
   # Encontrar posição da espécie de partida
   posicao_partida <- 1
