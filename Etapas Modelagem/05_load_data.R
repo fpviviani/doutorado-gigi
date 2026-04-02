@@ -8,8 +8,8 @@ bioclimaticas <- rast(file.path(dir_variaveis, "wc2.1_country/BRA_wc2.1_30s_bio.
 # Opcional: adicionar cobertura arbórea como preditor contínuo (% cobertura)
 # (assumimos que já está na mesma grade/resolução do bioclim, conforme informado)
 if (exists("usar_cobertura_arborea") && isTRUE(usar_cobertura_arborea)) {
-  cat("📦 Carregando cobertura arbórea (cobertura_arborea.tif)...\n")
-  cobertura <- rast(file.path(dir_variaveis, "cobertura_arborea.tif"))
+  cat("📦 Carregando cobertura arbórea (cobertura_arborea_ambdata.tif)...\n")
+  cobertura <- rast(file.path(dir_variaveis, "cobertura_arborea_ambdata.tif"))
   names(cobertura) <- "cobertura_arborea"
   bioclimaticas <- c(bioclimaticas, cobertura)
   cat("   ✅ Preditores totais (bioclim + cobertura):", nlyr(bioclimaticas), "\n")
