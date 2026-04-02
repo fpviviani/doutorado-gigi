@@ -193,7 +193,6 @@ Rscript scripts/prepare_cobertura_arborea.R "C:/Users/giova/modelagem-15km-codig
 ```
 
 Isso gera:
-- `Input/Variaveis/cobertura_arborea_ambdata_alinhada_bio_brasil_30s.tif`
 - `Input/Variaveis/bio_brasil_30s_alinhado_cobertura_arborea.tif`
 
 Depois você pode configurar o pipeline para usar esse arquivo alinhado.
