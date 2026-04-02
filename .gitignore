@@ -5,3 +5,6 @@ renv/library/
 Checkpoints/
 temp_raster/
 renv/local/
+
+# Generated logs
+Logs/
