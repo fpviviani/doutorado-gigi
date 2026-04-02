@@ -16,7 +16,7 @@ setwd(project_root)
 source("Etapas Modelagem/01_config_dirs.R")
 
 # Keep paths consistent with the main pipeline (Etapa 05)
-bio_path <- file.path(dir_variaveis, "wc2.1_country", "BRA_wc2.1_30s_bio.tif")
+bio_path <- file.path(dir_variaveis, "bio_brasil_30s.tif")
 # cobertura is expected in dir_variaveis root
 cov_path <- file.path(dir_variaveis, "cobertura_arborea_ambdata.tif")
 out_path <- file.path(dir_variaveis, "cobertura_arborea_ambdata_alinhada_bioclim.tif")
