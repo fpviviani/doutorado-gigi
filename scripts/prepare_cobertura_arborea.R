@@ -15,10 +15,11 @@ setwd(project_root)
 # Load directory config (defines dir_variaveis)
 source("Etapas Modelagem/01_config_dirs.R")
 
-bio_path <- file.path(dir_variaveis, "climate", "wc2.1_country", "BRA_wc2.1_30s_bio.tif")
-# cobertura is expected in dir_variaveis root (per current convention)
-cov_path <- file.path(dir_variaveis, "cobertura_arborea.tif")
-out_path <- file.path(dir_variaveis, "cobertura_arborea_alinhada_bioclim.tif")
+# Keep paths consistent with the main pipeline (Etapa 05)
+bio_path <- file.path(dir_variaveis, "wc2.1_country", "BRA_wc2.1_30s_bio.tif")
+# cobertura is expected in dir_variaveis root
+cov_path <- file.path(dir_variaveis, "cobertura_arborea_ambdata.tif")
+out_path <- file.path(dir_variaveis, "cobertura_arborea_ambdata_alinhada_bioclim.tif")
 
 cat("📌 Project root:", normalizePath(getwd(), winslash = "/", mustWork = FALSE), "\n")
 cat("📦 Bioclim:", bio_path, "\n")
@@ -32,7 +33,14 @@ bio <- rast(bio_path)
 # Use the first layer as template for geometry
 bio_tpl <- bio[[1]]
 
+cat("🔎 Bioclim ext: ", paste(as.vector(ext(bio_tpl)), collapse = ", "), "\n", sep = "")
+cat("🔎 Bioclim res: ", paste(res(bio_tpl), collapse = ", "), "\n", sep = "")
+cat("🔎 Bioclim crs: ", as.character(crs(bio_tpl)), "\n", sep = "")
+
 cov <- rast(cov_path)
+cat("🔎 Cobertura ext (orig): ", paste(as.vector(ext(cov)), collapse = ", "), "\n", sep = "")
+cat("🔎 Cobertura res (orig): ", paste(res(cov), collapse = ", "), "\n", sep = "")
+cat("🔎 Cobertura crs (orig): ", as.character(crs(cov)), "\n\n", sep = "")
 
 # 1) Ensure CRS matches
 if (!same.crs(bio_tpl, cov)) {
