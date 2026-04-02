@@ -1,0 +1,11 @@
+= 60 
+Modelagem: Crypturellus_bartletti
+Data: 2026-04-02 12:57:22.7133
+Núcleos: 7
+Background: 5000
+Replicações: 10
+Métodos: maxent, rf, mars
+VIF threshold: 5
+AUC médio: 0.585
+TSS médio: 0.293
+= 60 

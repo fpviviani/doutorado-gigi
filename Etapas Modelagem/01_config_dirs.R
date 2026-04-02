@@ -9,12 +9,12 @@ dir_input <- file.path(dir_base, "Input")
 dir_output <- file.path(dir_base, "Output")
 
 # INPUTS
-dir_ocorrencias <- file.path(dir_input, "Ocorrencias_15km")
-dir_buffers <- file.path(dir_input, "Buffers_15km")
+dir_ocorrencias <- file.path(dir_input, "Ocorrencias_10km")
+dir_buffers <- file.path(dir_input, "Buffers_10km")
 dir_variaveis <- file.path(dir_input, "Variaveis/climate")
 
 # OUTPUTS
-dir_modelagem <- file.path(dir_output, "Modelagem_15km")
+dir_modelagem <- file.path(dir_output, "Modelagem_10km")
 dir_checkpoint <- file.path(dir_output, "Checkpoints", "Modelagem")
 dir_temp <- file.path(dir_output, "temp_raster")
 dir_relatorios <- file.path(dir_modelagem, "relatorios")

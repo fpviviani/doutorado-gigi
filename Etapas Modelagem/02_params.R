@@ -12,7 +12,7 @@ n_cores <- 4
 # IMPORTANTE: quando ativo, permite que o script reduza n_cores automaticamente
 # (3 e depois 1) após erros de memória. Aqui NÃO alteramos n_cores.
 safe_mode <- TRUE
-limiar_vif <- 10
+limiar_vif <- 5
 n_replicacoes <- 6
 test_percent <- 30
 

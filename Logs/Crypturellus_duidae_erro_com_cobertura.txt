@@ -1,0 +1,57 @@
+Espécie: Crypturellus_duidae
+Data: 2026-04-02 13:38:39.711337
+Erro: cannot coerce class ‘structure(".varImportanceList", package = "sdm")’ to a data.frame
+Traceback: 28: as.environment(x)
+27: x@pntr$names
+26: x@pntr$names
+25: names(x)
+24: names(x)
+23: .local(x, ...)
+22: readValues(x, row, nrows, col, ncols, mat = mat, dataframe = dataframe, 
+        ...)
+21: readValues(x, row, nrows, col, ncols, mat = mat, dataframe = dataframe, 
+        ...)
+20: .local(x, ...)
+19: values(x, dataframe = TRUE)
+18: values(x, dataframe = TRUE)
+17: data.frame(..., check.names = FALSE)
+16: cbind(deparse.level, ...)
+15: cbind(d, values(x, dataframe = TRUE), ...)
+14: .local(x, row.names, optional, ...)
+13: as.data.frame(newdata, cells = TRUE, na.rm = TRUE)
+12: as.data.frame(newdata, cells = TRUE, na.rm = TRUE)
+11: .local(object, ...)
+10: predict(x, newdata, id = id, filename = pFilename, overwrite = overwrite)
+9: predict(x, newdata, id = id, filename = pFilename, overwrite = overwrite)
+8: ensemble(x, newdata, filename = filename, setting = setting, 
+       overwrite = overwrite, pFilename = pFilename, ...)
+7: ensemble(x, newdata, filename = filename, setting = setting, 
+       overwrite = overwrite, pFilename = pFilename, ...)
+6: ensemble(modelo, newdata = bio_stack, setting = list(method = "weighted", 
+       stat = "AUC", opt = 2))
+5: ensemble(modelo, newdata = bio_stack, setting = list(method = "weighted", 
+       stat = "AUC", opt = 2)) at #134
+4: doTryCatch(return(expr), name, parentenv, handler)
+3: tryCatchOne(expr, names, parentenv, handlers[[1L]])
+2: tryCatchList(expr, classes, parentenv, handlers)
+1: tryCatch({
+       log_mensagem("Carregando dados de ocorrência e buffer")
+       arquivo_ocorrencias <- file.path(dir_ocorrencias, paste0(especie, 
+           ".csv"))
+       arquivo_buffer <- file.path(dir_buffer, paste0(especie, "_MCP_2graus.shp"))
+       if (!file.exists(arquivo_ocorrencias)) {
+           stop(sprintf("Arquivo de ocorrências não encontrado: %s", 
+               arquivo_ocorrencias))
+       }
+       if (!file.exists(arquivo_buffer)) {
+           stop(sprintf("Arquivo de buffer não encontrado: %s", 
+               arquivo_buffer))
+       }
+       sp <- read.csv(arquivo_ocorrencias)
+       buffer <- st_read(arquivo_buffer, quiet = TRUE)
+       log_mensagem(sprintf("Ocorrências carregadas: %d registros", 
+           nrow(sp)))
+       log_mensagem(sprintf("Buffer carregado: %s", st_crs(buffer)$input))
+       log_mensagem("Carregando variáveis climáticas")
+       bioclimaticas <- rast(file.path(dir_variaveis, "wc2.1_country/BRA_wc2.1_30s_bio.tif"))
+    ...

@@ -71,9 +71,12 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     
     # 3. Carregar buffer
     cat("\n2️⃣ Carregando buffer...\n")
-    buffer_shp <- file.path(dir_buffers, paste0(especie, "_buffer.shp"))
+    buffer_shp <- file.path(dir_buffers, paste0(especie, "_MCP_2graus.shp"))
     if (!file.exists(buffer_shp)) {
       buffer_shp <- file.path(dir_buffers, paste0(especie, ".shp"))
+    }
+    if (!file.exists(buffer_shp)) {
+      buffer_shp <- file.path(dir_buffers, paste0(especie, "buffer.shp"))
     }
     if (!file.exists(buffer_shp)) stop("Buffer não encontrado")
     
