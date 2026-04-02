@@ -196,3 +196,19 @@ Isso gera:
 - `Input/Variaveis/bio_brasil_30s_alinhado_cobertura_arborea.tif`
 
 Depois você pode configurar o pipeline para usar esse arquivo alinhado.
+
+
+## Pré-processar preditores via shapefile do Brasil (BR_Pais_2024)
+
+Gera versões recortadas/alinhadas do bioclim e da cobertura usando o shapefile:
+- `Input/BR_Pais_2024/BR_Pais_2024.shp`
+
+```bash
+Rscript scripts/prepare_predictors_by_brazil_shp.R
+# ou passando o caminho do projeto
+Rscript scripts/prepare_predictors_by_brazil_shp.R "C:/Users/giova/modelagem-15km-codigo"
+```
+
+Outputs:
+- `Input/Variaveis/bio_brasil_30s_recortado_BR_Pais_2024.tif`
+- `Input/Variaveis/cobertura_arborea_ambdata_recortada_BR_Pais_2024.tif`
