@@ -16,11 +16,13 @@ if (nrow(especies_pendentes) == 0) {
   parametros_execucao <- data.frame(
     parametro = c(
       'lote_tamanho','pausa_minutos','max_tentativas','n_cores_inicial','n_cores','safe_mode','limiar_vif','n_replicacoes','test_percent',
-      'background_min','background_max','metodos_modelagem','especie_partida'
+      'background_min','background_max','metodos_modelagem',
+      'modo_execucao','especie_unica','especie_partida'
     ),
     valor = c(
       lote_tamanho, pausa_minutos, max_tentativas, n_cores_inicial, n_cores, safe_mode, limiar_vif, n_replicacoes, test_percent,
-      background_min, background_max, paste(metodos_modelagem, collapse = ','), especie_partida
+      background_min, background_max, paste(metodos_modelagem, collapse = ','),
+      modo_execucao, ifelse(is.null(especie_unica), '', as.character(especie_unica)), especie_partida
     ),
     stringsAsFactors = FALSE
   )
