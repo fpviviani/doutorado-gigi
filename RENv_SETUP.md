@@ -1,6 +1,6 @@
 # renv (reprodutibilidade)
 
-Este projeto foi preparado para usar **renv** (lockfile de dependências), mas a máquina onde o OpenClaw está rodando **não tem `Rscript` instalado**, então eu não consigo gerar o `renv.lock` automaticamente daqui.
+Este projeto foi preparado para usar **renv** (lockfile de dependências), mas a máquina onde o OpenClaw está rodando **não tem `Rscript` instalado**, então não é possível gerar o `renv.lock` automaticamente a partir deste ambiente.
 
 Para habilitar o renv no seu ambiente R, rode no terminal (com R instalado):
 

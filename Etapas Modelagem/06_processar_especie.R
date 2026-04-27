@@ -96,7 +96,7 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     sp_extract <- terra::extract(vars_buffer, sp_vect)
     sp_extract <- sp_extract[, -1, drop = FALSE]
 
-    # Não punir NA: se a única NA for em cobertura_arborea, não descartamos a ocorrência.
+    # Não punir NA: se a única NA for em cobertura_arborea, a ocorrência não é descartada.
     # Estratégia parametrizável (02_params.R):
     # - na_cobertura_strategy = "zero" (default) ou "median"
     if ("cobertura_arborea" %in% names(sp_extract)) {

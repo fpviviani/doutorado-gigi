@@ -6,7 +6,7 @@ cat("📦 Carregando variáveis climáticas...\n")
 bioclimaticas <- rast(file.path(dir_variaveis, "bio_brasil_30s.tif"))
 
 # Opcional: adicionar cobertura arbórea como preditor contínuo (% cobertura)
-# (assumimos que já está na mesma grade/resolução do bioclim, conforme informado)
+# (assume-se que já esteja na mesma grade/resolução do bioclim, conforme informado)
 if (exists("usar_cobertura_arborea") && isTRUE(usar_cobertura_arborea)) {
   cat("📦 Carregando cobertura arbórea (cobertura_arborea_ambdata.tif)...\n")
   cobertura <- rast(file.path(dir_variaveis, "cobertura_arborea_ambdata.tif"))
@@ -61,7 +61,7 @@ if (modo_execucao == "single") {
     ))
   }
 
-  # No modo single, ainda respeitamos o filtro de já processadas
+  # No modo single, o filtro de já processadas ainda é respeitado
   especies_pendentes <- especies_pendentes[!especies_pendentes$especie %in% especies_processadas, ]
 
   cat("🎯 Modo de execução: SINGLE\n")

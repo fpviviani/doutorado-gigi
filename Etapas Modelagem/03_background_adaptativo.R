@@ -1,6 +1,5 @@
 # -----------------------------------------------------------------------------
 # 3. FUNÇÃO DE BACKGROUND ADAPTATIVO
-# Baseado em Barbet-Massin (2012) e Rausell-Moreno (2025)
 # -----------------------------------------------------------------------------
 
 calcular_background <- function(n_ocorrencias) {
