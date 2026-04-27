@@ -21,14 +21,7 @@ background_min <- 5000
 background_max <- 10000
 
 # PREDITORES
-# Se TRUE: usa bioclim + cobertura_arborea.tif (mesma grade/resolução)
-# Se FALSE: usa somente o bioclim (comportamento antigo)
-usar_cobertura_arborea <- FALSE
-
-# NA da cobertura arbórea: estratégia para não punir ocorrências
-# - "zero": substitui NA por 0 (% cobertura)
-# - "median": substitui NA pela mediana observada na extração
-na_cobertura_strategy <- "zero"  # "zero" | "median"
+# O pipeline utiliza apenas o raster bioclimático (bio_brasil_30s.tif).
 
 # MÉTODOS
 metodos_modelagem <- c('maxent', 'rf', 'mars')

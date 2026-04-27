@@ -33,7 +33,6 @@ O pipeline espera encontrar (estrutura atual):
 - `Input/new_occ_10km/` → CSVs de ocorrências por espécie (ex.: `Mitu_tuberosum_thin_10km.csv`)
 - `Input/new_buffers/` → shapefiles de buffer por espécie (`<especie>*.shp`)
 - `Input/Clima/bio_brasil_30s.tif` → raster bioclim
-- (opcional) `Input/Clima/cobertura_arborea_ambdata.tif` → preditor extra (cobertura arbórea), **na mesma grade** do bioclim
 
 ### Onde saem os resultados (Output)
 As saídas são geradas em:
@@ -83,8 +82,6 @@ Parâmetros gerais da modelagem.
   - `modo_execucao = "list"` (lista: `especies_lista`)
 - `verificar_pontos` (se `TRUE`, pede confirmação visual por espécie antes de rodar o `sdmData` — útil para depuração)
 - Preditores opcionais:
-  - `usar_cobertura_arborea` (inclui `cobertura_arborea_ambdata.tif`)
-  - `na_cobertura_strategy` (como tratar NA da cobertura: `zero` ou `median`)
 
 #### `Etapas Modelagem/03_background_adaptativo.R`
 Função de background adaptativo.
@@ -103,7 +100,6 @@ Limpeza inicial antes de começar o processamento.
 Carregamento dos dados e preparação da lista de espécies.
 
 - Carrega o raster `Input/Clima/bio_brasil_30s.tif`
-- Se `usar_cobertura_arborea=TRUE`, adiciona `Input/Clima/cobertura_arborea_ambdata.tif` como camada extra
 - Lista arquivos de ocorrência (`.csv`) e extrai o nome da espécie removendo sufixos comuns:
   - `_rarefeito.csv`, `_bruto.csv`, `_thin_<n>km.csv` etc.
 - Detecta espécies já processadas (`*_ensemble.tif`)
@@ -119,7 +115,6 @@ Função principal de processamento por espécie.
   - carrega buffer da espécie
   - recorta e mascara preditores no buffer
   - extrai valores nas ocorrências (`terra::extract`)
-    - se existir `cobertura_arborea`, aplica `na_cobertura_strategy` para não penalizar ocorrências (imputa NA com `0` ou `mediana`; se tudo NA, remove a variável)
   - seleção por VIF (`vifstep` / `exclude`)
   - grava raster temporário (`.tif`) e cria `raster::stack` (ponte para `sdm`)
   - monta `sdmData` com background
@@ -206,9 +201,7 @@ Os scripts abaixo foram adicionados/atualizados pela Gi para download, limpeza e
 
 ## Cobertura arbórea (preditor opcional)
 
-O pipeline suporta adicionar cobertura arbórea via `usar_cobertura_arborea=TRUE` em `02_params.R`.
 Ele espera encontrar:
 
-- `Input/Clima/cobertura_arborea_ambdata.tif`
 
 E assume que o raster já está **alinhado** ao bioclim (`bio_brasil_30s.tif`) em CRS/res/extent.
