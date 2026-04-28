@@ -188,10 +188,20 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
       cor_mat <- suppressWarnings(abs(cor(sp_extract[, nomes_vif, drop = FALSE], use = "complete.obs")))
       diag(cor_mat) <- 0
       mean_cor <- colMeans(cor_mat, na.rm = TRUE)
-      vars_escolhidas <- names(sort(mean_cor))[seq_len(n_vars_max_local)]
+
+      cat("   📋 Correlação média absoluta por variável (menor → maior):\n")
+      mean_cor_sorted <- sort(mean_cor)
+      for (i in seq_along(mean_cor_sorted)) {
+        nm <- names(mean_cor_sorted)[i]
+        vv <- mean_cor_sorted[[i]]
+        vv_txt <- ifelse(is.na(vv), "NA", format(round(vv, 4), nsmall = 4))
+        cat("      ", sprintf("%02d", i), ") ", nm, "  mean|r|=", vv_txt, "\n", sep = "")
+      }
+
+      vars_escolhidas <- names(mean_cor_sorted)[seq_len(n_vars_max_local)]
 
       vars_selecionadas <- vars_selecionadas[[vars_escolhidas]]
-      cat("   ✅ Variáveis finais: ", paste(vars_escolhidas, collapse = ", "), "\n", sep = "")
+      cat("   ✅ Variáveis finais (menor correlação média): ", paste(vars_escolhidas, collapse = ", "), "\n", sep = "")
     }
 
     resultado$n_variaveis_selecionadas <- nlyr(vars_selecionadas)
