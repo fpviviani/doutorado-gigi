@@ -141,26 +141,47 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
       data.frame(variavel = names(vifs), vif = as.numeric(vifs), stringsAsFactors = FALSE)
     }
 
-    vif_df <- tryCatch(calcular_vif_df(sp_extract), error = function(e) NULL)
+    # Seleção iterativa: remove a variável com MAIOR VIF até restarem 5.
+    vars_candidatas <- names(vars_buffer)
+    max_iter <- 100
 
-    if (!is.null(vif_df) && nrow(vif_df) > 0) {
-      vif_df <- vif_df[order(vif_df$vif, vif_df$variavel, na.last = TRUE), , drop = FALSE]
+    for (iter in seq_len(max_iter)) {
+      if (length(vars_candidatas) <= 5) break
 
-      cat("   📋 Ranking VIF (menor → maior):\n")
-      for (i in seq_len(nrow(vif_df))) {
-        vname <- as.character(vif_df$variavel[i])
-        vv <- vif_df$vif[i]
+      df_iter <- sp_extract[, vars_candidatas, drop = FALSE]
+      vif_df <- tryCatch(calcular_vif_df(df_iter), error = function(e) NULL)
+      if (is.null(vif_df) || nrow(vif_df) == 0) break
+
+      # Se tudo for NA, não dá para decidir o que remover
+      if (all(is.na(vif_df$vif))) break
+
+      # Remove a variável com maior VIF (Inf > números; NA vai pro fim)
+      ord_desc <- order(vif_df$vif, decreasing = TRUE, na.last = TRUE)
+      worst <- as.character(vif_df$variavel[ord_desc[1]])
+      vars_candidatas <- setdiff(vars_candidatas, worst)
+    }
+
+    # Ranking final (após remoções) e escolha final das 5
+    vif_final <- tryCatch(calcular_vif_df(sp_extract[, vars_candidatas, drop = FALSE]), error = function(e) NULL)
+
+    if (!is.null(vif_final) && nrow(vif_final) > 0) {
+      vif_final <- vif_final[order(vif_final$vif, vif_final$variavel, na.last = TRUE), , drop = FALSE]
+
+      cat("   📋 VIF final (após remoções, menor → maior):\n")
+      for (i in seq_len(nrow(vif_final))) {
+        vname <- as.character(vif_final$variavel[i])
+        vv <- vif_final$vif[i]
         vv_txt <- ifelse(is.na(vv), "NA", ifelse(is.infinite(vv), "Inf", format(round(vv, 4), nsmall = 4)))
         cat("      ", sprintf("%02d", i), ") ", vname, "  VIF=", vv_txt, "\n", sep = "")
       }
 
-      n_keep <- min(5, nrow(vif_df))
-      vars_keep <- vif_df$variavel[seq_len(n_keep)]
+      n_keep <- min(5, nrow(vif_final))
+      vars_keep <- vif_final$variavel[seq_len(n_keep)]
 
       vars_selecionadas <- vars_buffer[[vars_keep]]
       resultado$n_variaveis_selecionadas <- nlyr(vars_selecionadas)
 
-      cat("   ✅ Mantidas ", resultado$n_variaveis_selecionadas, " variáveis (top 5 menor VIF): ", paste(vars_keep, collapse = ", "), "\n", sep = "")
+      cat("   ✅ Mantidas ", resultado$n_variaveis_selecionadas, " variáveis (final, top 5 menor VIF): ", paste(vars_keep, collapse = ", "), "\n", sep = "")
     } else {
       vars_selecionadas <- vars_buffer
       resultado$n_variaveis_selecionadas <- nlyr(vars_selecionadas)
