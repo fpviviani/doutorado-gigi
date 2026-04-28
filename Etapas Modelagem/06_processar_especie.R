@@ -141,52 +141,60 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
       data.frame(variavel = names(vifs), vif = as.numeric(vifs), stringsAsFactors = FALSE)
     }
 
-    # Seleção iterativa: remove a variável com MAIOR VIF até restarem 5.
+    # 6a) Filtro por VIF (remove colinearidade excessiva até VIF <= limiar_vif)
     vars_candidatas <- names(vars_buffer)
-    max_iter <- 100
+    max_iter <- 200
 
     for (iter in seq_len(max_iter)) {
-      if (length(vars_candidatas) <= 5) break
+      if (length(vars_candidatas) <= 2) break
 
       df_iter <- sp_extract[, vars_candidatas, drop = FALSE]
       vif_df <- tryCatch(calcular_vif_df(df_iter), error = function(e) NULL)
       if (is.null(vif_df) || nrow(vif_df) == 0) break
-
-      # Se tudo for NA, não dá para decidir o que remover
       if (all(is.na(vif_df$vif))) break
 
-      # Remove a variável com maior VIF (Inf > números; NA vai pro fim)
+      vmax <- suppressWarnings(max(vif_df$vif, na.rm = TRUE))
+      if (!is.finite(vmax)) {
+        # Se houver Inf, remove a pior e continua
+      } else if (vmax <= limiar_vif) {
+        break
+      }
+
       ord_desc <- order(vif_df$vif, decreasing = TRUE, na.last = TRUE)
       worst <- as.character(vif_df$variavel[ord_desc[1]])
       vars_candidatas <- setdiff(vars_candidatas, worst)
     }
 
-    # Ranking final (após remoções) e escolha final das 5
-    vif_final <- tryCatch(calcular_vif_df(sp_extract[, vars_candidatas, drop = FALSE]), error = function(e) NULL)
-
-    if (!is.null(vif_final) && nrow(vif_final) > 0) {
-      vif_final <- vif_final[order(vif_final$vif, vif_final$variavel, na.last = TRUE), , drop = FALSE]
-
-      cat("   📋 VIF final (após remoções, menor → maior):\n")
-      for (i in seq_len(nrow(vif_final))) {
-        vname <- as.character(vif_final$variavel[i])
-        vv <- vif_final$vif[i]
-        vv_txt <- ifelse(is.na(vv), "NA", ifelse(is.infinite(vv), "Inf", format(round(vv, 4), nsmall = 4)))
-        cat("      ", sprintf("%02d", i), ") ", vname, "  VIF=", vv_txt, "\n", sep = "")
-      }
-
-      n_keep <- min(5, nrow(vif_final))
-      vars_keep <- vif_final$variavel[seq_len(n_keep)]
-
-      vars_selecionadas <- vars_buffer[[vars_keep]]
-      resultado$n_variaveis_selecionadas <- nlyr(vars_selecionadas)
-
-      cat("   ✅ Mantidas ", resultado$n_variaveis_selecionadas, " variáveis (final, top 5 menor VIF): ", paste(vars_keep, collapse = ", "), "\n", sep = "")
+    # Aplicar filtro VIF (se sobrou algo)
+    if (length(vars_candidatas) >= 1) {
+      vars_selecionadas <- vars_buffer[[vars_candidatas]]
     } else {
       vars_selecionadas <- vars_buffer
-      resultado$n_variaveis_selecionadas <- nlyr(vars_selecionadas)
-      cat("   ⚠️ Não foi possível calcular VIF; usando todas as ", resultado$n_variaveis_selecionadas, " variáveis\n", sep = "")
     }
+
+    cat("   ✅", nlyr(vars_selecionadas), "variáveis após filtro de VIF\n")
+
+    # 6b) Corte final: manter no máximo n_vars_max variáveis menos correlacionadas (nas ocorrências)
+    n_vars_max_local <- 5
+    if (exists("n_vars_max") && !is.null(n_vars_max)) {
+      n_vars_max_local <- as.integer(n_vars_max)
+      if (!is.finite(n_vars_max_local) || n_vars_max_local < 1) n_vars_max_local <- 5
+    }
+
+    if (nlyr(vars_selecionadas) > n_vars_max_local) {
+      cat("   🔎 Selecionando ", n_vars_max_local, " variáveis com menor correlação média (ocorrências)...\n", sep = "")
+
+      nomes_vif <- names(vars_selecionadas)
+      cor_mat <- suppressWarnings(abs(cor(sp_extract[, nomes_vif, drop = FALSE], use = "complete.obs")))
+      diag(cor_mat) <- 0
+      mean_cor <- colMeans(cor_mat, na.rm = TRUE)
+      vars_escolhidas <- names(sort(mean_cor))[seq_len(n_vars_max_local)]
+
+      vars_selecionadas <- vars_selecionadas[[vars_escolhidas]]
+      cat("   ✅ Variáveis finais: ", paste(vars_escolhidas, collapse = ", "), "\n", sep = "")
+    }
+
+    resultado$n_variaveis_selecionadas <- nlyr(vars_selecionadas)
     
     # 7. Converter para stack
     cat("\n5️⃣ Convertendo para formato raster...\n")
