@@ -110,23 +110,32 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
       df <- as.data.frame(df)
       df <- df[, vapply(df, is.numeric, logical(1)), drop = FALSE]
       df <- df[, vapply(df, function(x) length(unique(x[!is.na(x)])) > 1, logical(1)), drop = FALSE]
-      if (ncol(df) < 2) {
-        return(data.frame(variavel = names(df), vif = rep(NA_real_, ncol(df)), stringsAsFactors = FALSE))
+      df <- df[complete.cases(df), , drop = FALSE]
+
+      if (ncol(df) < 2 || nrow(df) < 10) {
+        return(data.frame(
+          variavel = names(df),
+          vif = rep(NA_real_, ncol(df)),
+          stringsAsFactors = FALSE
+        ))
       }
 
       vifs <- sapply(names(df), function(v) {
-        y <- df[[v]]
-        X <- df[names(df) != v]
-        ok <- complete.cases(cbind(y, X))
-        y <- y[ok]
-        X <- X[ok]
-        if (length(y) < 10 || ncol(X) < 1) return(NA_real_)
+        tryCatch({
+          y <- df[[v]]
+          X <- df[names(df) != v, drop = FALSE]
+          if (ncol(X) < 1) return(NA_real_)
 
-        fit <- tryCatch(lm(y ~ ., data = X), error = function(e) NULL)
-        if (is.null(fit)) return(NA_real_)
-        r2 <- tryCatch(summary(fit)$r.squared, error = function(e) NA_real_)
-        if (!is.finite(r2) || r2 >= 0.999999) return(Inf)
-        1 / (1 - r2)
+          # Ajuste robusto: colocar y dentro do data.frame do lm.
+          dfit <- cbind(y = y, X)
+          fit <- lm(y ~ ., data = dfit)
+          r2 <- summary(fit)$r.squared
+
+          if (!is.finite(r2) || r2 >= 0.999999) return(Inf)
+          1 / (1 - r2)
+        }, error = function(e) {
+          NA_real_
+        })
       })
 
       data.frame(variavel = names(vifs), vif = as.numeric(vifs), stringsAsFactors = FALSE)
