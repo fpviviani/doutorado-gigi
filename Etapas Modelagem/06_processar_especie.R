@@ -145,17 +145,26 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
 
     if (!is.null(vif_df) && nrow(vif_df) > 0) {
       vif_df <- vif_df[order(vif_df$vif, vif_df$variavel, na.last = TRUE), , drop = FALSE]
+
+      cat("   📋 Ranking VIF (menor → maior):\n")
+      for (i in seq_len(nrow(vif_df))) {
+        vname <- as.character(vif_df$variavel[i])
+        vv <- vif_df$vif[i]
+        vv_txt <- ifelse(is.na(vv), "NA", ifelse(is.infinite(vv), "Inf", format(round(vv, 4), nsmall = 4)))
+        cat("      ", sprintf("%02d", i), ") ", vname, "  VIF=", vv_txt, "\n", sep = "")
+      }
+
       n_keep <- min(5, nrow(vif_df))
       vars_keep <- vif_df$variavel[seq_len(n_keep)]
 
       vars_selecionadas <- vars_buffer[[vars_keep]]
       resultado$n_variaveis_selecionadas <- nlyr(vars_selecionadas)
 
-      cat("   ✅ Mantidas", resultado$n_variaveis_selecionadas, "variáveis (menor VIF): ", paste(vars_keep, collapse = ", "), "\n", sep = "")
+      cat("   ✅ Mantidas ", resultado$n_variaveis_selecionadas, " variáveis (top 5 menor VIF): ", paste(vars_keep, collapse = ", "), "\n", sep = "")
     } else {
       vars_selecionadas <- vars_buffer
       resultado$n_variaveis_selecionadas <- nlyr(vars_selecionadas)
-      cat("   ⚠️ Não foi possível calcular VIF; usando todas as", resultado$n_variaveis_selecionadas, "variáveis\n")
+      cat("   ⚠️ Não foi possível calcular VIF; usando todas as ", resultado$n_variaveis_selecionadas, " variáveis\n", sep = "")
     }
     
     # 7. Converter para stack
