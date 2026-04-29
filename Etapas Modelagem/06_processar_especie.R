@@ -81,30 +81,10 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     
     buffer <- vect(buffer_shp)
 
-    # 4. Recortar variáveis (com cache em disco)
+    # 4. Recortar variáveis
     cat("\n3️⃣ Recortando variáveis...\n")
-
-    cache_dir <- file.path(dir_temp, "cache_predictors")
-    if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
-    cache_path <- file.path(cache_dir, paste0(especie, "_vars_buffer.tif"))
-
-    if (file.exists(cache_path)) {
-      cat("   💾 Cache HIT: usando raster recortado em ", cache_path, "\n", sep = "")
-      vars_buffer <- rast(cache_path)
-    } else {
-      cat("   💾 Cache MISS: recortando e salvando em cache...\n")
-      vars_buffer <- crop(bioclimaticas, buffer)
-      vars_buffer <- mask(vars_buffer, buffer)
-      if (nlyr(vars_buffer) < 1) stop("Recorte de variáveis resultou em 0 camadas")
-
-      # Escrever cache em disco (em camadas, para evitar recomputar em reexecuções)
-      tryCatch({
-        terra::writeRaster(vars_buffer, cache_path, overwrite = TRUE, wopt = list(gdal = c("COMPRESS=LZW")))
-      }, error = function(e) {
-        cat("   ⚠️ Falha ao escrever cache de preditores: ", e$message, "\n", sep = "")
-      })
-    }
-
+    vars_buffer <- crop(bioclimaticas, buffer)
+    vars_buffer <- mask(vars_buffer, buffer)
     cat("   📊", nlyr(vars_buffer), "camadas\n")
     if (nlyr(vars_buffer) < 1) stop("Recorte de variáveis resultou em 0 camadas")
 
