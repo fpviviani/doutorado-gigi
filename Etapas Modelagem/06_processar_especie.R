@@ -81,10 +81,30 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     
     buffer <- vect(buffer_shp)
 
-    # 4. Recortar variáveis
+    # 4. Recortar variáveis (com cache em disco)
     cat("\n3️⃣ Recortando variáveis...\n")
-    vars_buffer <- crop(bioclimaticas, buffer)
-    vars_buffer <- mask(vars_buffer, buffer)
+
+    cache_dir <- file.path(dir_temp, "cache_predictors")
+    if (!dir.exists(cache_dir)) dir.create(cache_dir, recursive = TRUE)
+    cache_path <- file.path(cache_dir, paste0(especie, "_vars_buffer.tif"))
+
+    if (file.exists(cache_path)) {
+      cat("   💾 Cache HIT: usando raster recortado em ", cache_path, "\n", sep = "")
+      vars_buffer <- rast(cache_path)
+    } else {
+      cat("   💾 Cache MISS: recortando e salvando em cache...\n")
+      vars_buffer <- crop(bioclimaticas, buffer)
+      vars_buffer <- mask(vars_buffer, buffer)
+      if (nlyr(vars_buffer) < 1) stop("Recorte de variáveis resultou em 0 camadas")
+
+      # Escrever cache em disco (em camadas, para evitar recomputar em reexecuções)
+      tryCatch({
+        terra::writeRaster(vars_buffer, cache_path, overwrite = TRUE, wopt = list(gdal = c("COMPRESS=LZW")))
+      }, error = function(e) {
+        cat("   ⚠️ Falha ao escrever cache de preditores: ", e$message, "\n", sep = "")
+      })
+    }
+
     cat("   📊", nlyr(vars_buffer), "camadas\n")
     if (nlyr(vars_buffer) < 1) stop("Recorte de variáveis resultou em 0 camadas")
 
@@ -211,7 +231,14 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     # 7. Converter para stack
     cat("\n5️⃣ Convertendo para formato raster...\n")
     raster_temp <- file.path(dir_temp, paste0(especie, "_vars.tif"))
-    terra::writeRaster(vars_selecionadas, raster_temp, overwrite = TRUE, gdal = c("COMPRESS=NONE"))
+
+    # Evita reescrever se já existir (ganho de tempo em reexecuções)
+    if (!file.exists(raster_temp)) {
+      terra::writeRaster(vars_selecionadas, raster_temp, overwrite = TRUE, wopt = list(gdal = c("COMPRESS=LZW")))
+    } else {
+      cat("   💾 Reuso de raster temporário existente: ", raster_temp, "\n", sep = "")
+    }
+
     if (!file.exists(raster_temp)) stop("Falha ao criar raster temporário")
     vars_stack <- raster::stack(raster_temp)
 
