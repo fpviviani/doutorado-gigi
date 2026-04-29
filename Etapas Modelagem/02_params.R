@@ -14,6 +14,18 @@ n_cores <- 4
 safe_mode <- TRUE
 limiar_vif <- 10
 n_vars_max <- 5  # máximo de variáveis após o filtro (seleção por menor correlação média)
+
+# TESTE: subconjunto fixo de variáveis bioclimáticas (Marini et al. 2009; seleção descrita no texto enviado)
+# Quando TRUE, o pipeline usa apenas estas 5 variáveis e ignora (temporariamente) a seleção por VIF/correlação por espécie.
+# Subset escolhido: bio4, bio5, bio7, bio12, bio15.
+use_fixed_bioclim_subset <- FALSE
+fixed_bioclim_vars <- c(
+  "wc2.1_30s_bio_4",
+  "wc2.1_30s_bio_5",
+  "wc2.1_30s_bio_7",
+  "wc2.1_30s_bio_12",
+  "wc2.1_30s_bio_15"
+)
 n_replicacoes <- 10
 test_percent <- 30
 

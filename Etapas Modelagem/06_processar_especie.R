@@ -101,8 +101,29 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     if (nrow(sp_extract) < 1) stop("Extração das variáveis retornou 0 linhas (ocorrências fora do raster/buffer?)")
     if (ncol(sp_extract) < 1) stop("Extração das variáveis retornou 0 colunas")
     
-    # 6. Seleção de variáveis por VIF (manter as 5 com menor VIF)
-    cat("\n4️⃣ Selecionando variáveis por VIF (top 5 menor VIF)...\n")
+    # 6. Seleção de variáveis (modo normal vs teste com subset fixo)
+    cat("\n4️⃣ Selecionando variáveis...\n")
+
+    # Modo de teste: usar um subconjunto fixo de variáveis bioclimáticas
+    if (exists("use_fixed_bioclim_subset") && isTRUE(use_fixed_bioclim_subset)) {
+      if (!exists("fixed_bioclim_vars") || is.null(fixed_bioclim_vars) || length(fixed_bioclim_vars) < 1) {
+        stop("use_fixed_bioclim_subset=TRUE requer que fixed_bioclim_vars esteja definido em 02_params.R")
+      }
+
+      fixed <- as.character(fixed_bioclim_vars)
+      fixed <- fixed[fixed != ""]
+      faltando <- setdiff(fixed, names(vars_buffer))
+      if (length(faltando) > 0) {
+        stop(paste0("Variáveis fixas não encontradas em vars_buffer: ", paste(faltando, collapse = ", ")))
+      }
+
+      vars_selecionadas <- vars_buffer[[fixed]]
+      resultado$n_variaveis_selecionadas <- nlyr(vars_selecionadas)
+      cat("   🧪 Subset fixo ativado (", resultado$n_variaveis_selecionadas, " vars): ", paste(fixed, collapse = ", "), "\n", sep = "")
+
+    } else {
+      cat("   🔧 Modo normal: filtro por VIF + corte por correlação (por espécie)\n")
+      cat("   🔧 limiar_vif=", limiar_vif, " | n_vars_max=", ifelse(exists("n_vars_max"), n_vars_max, 5), "\n", sep = "")
 
     # Calcula VIF por variável via regressão linear (VIF = 1/(1-R²)).
     # Evita dependência de funções específicas de pacotes.
@@ -205,7 +226,8 @@ processar_especie <- function(especie_info, bioclimaticas, tentativa = 1) {
     }
 
     resultado$n_variaveis_selecionadas <- nlyr(vars_selecionadas)
-    
+    }
+
     # 7. Converter para stack
     cat("\n5️⃣ Convertendo para formato raster...\n")
     raster_temp <- file.path(dir_temp, paste0(especie, "_vars.tif"))
